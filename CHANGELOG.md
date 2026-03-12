@@ -35,3 +35,42 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 - Converts to a standalone `.exe` via PyInstaller (`--onefile --windowed`)
 - Cross-platform ping flag handling (Windows `-n`, macOS/Linux `-c`)
 - Dark GitHub-style theme throughout
+
+---
+
+## [2.0.0] — 2026-03-12
+
+### Added
+- **7 regions**: Los Angeles, New York, Seattle, Chicago, Dallas, Atlanta, Miami
+  — live region switcher in the header, datacenters mapped per region
+- **Ping animation**: per-packet sparkline bar builds live in the table as
+  packets arrive (▁▂▄▆█) — no more waiting for all packets to finish
+- **Jitter column**: max−min range shown per server in the results table
+- **Ping count slider**: choose 2–20 packets per server (header)
+- **Threshold alerts**: configurable ms ceiling — row highlighted red + status
+  bar message when any server exceeds it
+- **Auto-ping scheduler**: repeat test every N minutes (0.5–60), configurable
+  via slider in the header
+- **Export CSV / JSON**: save full results to file via toolbar buttons
+- **Copy best server**: one click copies the lowest-latency hostname to clipboard
+- **Side-by-side comparison**: save two runs as A/B, compare with a delta table
+  (Δavg ms, Δjitter, Winner column)
+- **Historical graphing**: SQLite database stores every run; History tab shows
+  time-series latency chart + best-15 bar chart with server filter and run limit
+- **Traceroute tab**: run traceroute/tracert to any server with live hop table
+  + bar chart of hop latencies; "Use Best Server" button auto-fills target
+- **Speed test tab**: HTTP throughput test (Cloudflare, Mullvad CDN); donut gauge
+  showing avg + peak Mbps
+- **Dark / light theme toggle**: full re-theme including matplotlib charts
+- **"Best server" auto-connect**: shells out to `mullvad relay set hostname`
+  if the Mullvad CLI is installed
+- **System tray mode**: minimize to tray (requires `pystray` + `Pillow`);
+  tray menu for Show, Run Ping, Quit
+- **Sortable columns**: click any column header in the results table to sort
+- Statistics tab: added jitter box plot; threshold line on bar chart
+
+### Changed
+- Ping engine rewritten to stream per-packet results for live animation
+- Location detection: address-search dialog now prefills from IP city
+- Datacenter group info expanded to 7 regions × 2–5 DCs each
+- `requirements.txt` updated: added `pystray`, `Pillow`

@@ -1,32 +1,48 @@
-# mullvad-lax-ping
+# mullvad-wg-monitor
 
-A Python desktop tool for benchmarking Mullvad VPN's WireGuard servers in the Los Angeles region. Pings all 31 LAX servers in parallel, visualizes latency statistics with Seaborn/Matplotlib, and plots datacenter locations on an interactive map.
+A Python desktop tool for benchmarking Mullvad VPN WireGuard servers across seven US cities. Pings servers sequentially with per-packet live animation, stores results in SQLite for historical trending, and visualises everything with Seaborn/Matplotlib and an interactive Folium map.
 
 ![Python](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![Version](https://img.shields.io/badge/version-2.0.0-informational)
 
 ---
 
 ## Features
 
-- **Live results table** — pings all 31 `us-lax-wg-*` servers sequentially, showing avg/min/max latency, packet loss, and a color-coded status per server
-- **Statistics dashboard** — five Seaborn/Matplotlib charts auto-generated after each test:
-  - Sorted bar chart with min/max error bars across all servers
-  - KDE latency distribution curves per datacenter group
-  - Box plot comparing quartiles across groups
-  - Min vs. Max scatter plot (highlights jittery servers)
-  - Packet loss heatmap across the full server grid
-- **Static in-app map** — Matplotlib scatter plot of the five LA-area datacenter locations, with bubble size scaled to server count and color updated by live ping results
-- **Interactive browser map** — opens a Folium/Leaflet dark map in your browser with zoomable datacenter circles, individual server dots, hover tooltips, and click popups
-- **Summary stat cards** — best server, worst server, average latency, and reachable server count shown at a glance
-- **Cross-platform** — adjusts `ping` flags automatically for Windows (`-n`) and macOS/Linux (`-c`)
+### Core
+- **7 US regions** — Los Angeles, New York, Seattle, Chicago, Dallas, Atlanta, Miami; switch regions from the header dropdown at any time
+- **Live ping animation** — per-packet sparkline bar (▁▂▄▆█) builds in real time as packets arrive; no waiting for all packets to finish
+- **Jitter column** — max−min range shown alongside avg/min/max latency and packet loss per server
+- **Ping count slider** — choose 2–20 packets per server; more = more accurate averages
+- **Threshold alerts** — set a ms ceiling; rows highlight red and the status bar fires a message when any server exceeds it
+- **Sortable columns** — click any column header in the results table to sort
+
+### Automation
+- **Auto-ping scheduler** — repeat the test every 0.5–60 minutes; configurable via slider
+- **System tray mode** — minimize to the system tray with a coloured dot; tray menu for Show, Run Now, Quit
+- **"Best server" auto-connect** — shells out to `mullvad relay set hostname` if the Mullvad CLI is installed
+
+### Data & Export
+- **Export CSV / JSON** — save the full results table to a file
+- **Copy best server** — one click copies the lowest-latency hostname to clipboard for pasting into the Mullvad app
+- **Historical graphing** — SQLite database stores every run; History tab shows time-series latency and a best-15 bar chart, filterable by server name
+- **Side-by-side comparison** — save any two runs as A and B, then compare with a delta table (Δavg ms, Δjitter, Winner column)
+
+### Visualisation
+- **Statistics dashboard** — five Seaborn/Matplotlib charts: sorted bar chart with error bars, KDE distribution curves, jitter box plot, min vs max scatter, packet loss heatmap
+- **Static in-app map** — Matplotlib scatter of datacenter locations with bubble size scaled to server count, live-updated colours after each test, and distance lines from your location
+- **Interactive browser map** — Folium/Leaflet dark map with datacenter circles, individual server dots, hover tooltips, dashed polylines to your location coloured by latency
+- **Traceroute tab** — run traceroute/tracert to any server with a live hop table and bar chart of hop latencies
+- **Speed test tab** — HTTP throughput test (Cloudflare or Mullvad CDN) with donut gauges showing avg and peak Mbps
+- **Dark / light theme toggle** — full re-theme including all matplotlib charts
 
 ---
 
 ## Screenshots
 
-> Run the tool and screenshots will appear here — contributions welcome!
+> Run the tool and add screenshots here — contributions welcome!
 
 ---
 
@@ -36,109 +52,127 @@ A Python desktop tool for benchmarking Mullvad VPN's WireGuard servers in the Lo
 - The following packages (all installable via pip):
 
 ```
-tkinter       (included with most Python distributions)
-matplotlib
-seaborn
-pandas
-numpy
-folium
+matplotlib>=3.7.0
+seaborn>=0.12.0
+pandas>=2.0.0
+numpy>=1.24.0
+folium>=0.14.0
+pystray>=0.19.0   # optional — only needed for system tray mode
+Pillow>=10.0.0    # optional — only needed for system tray mode
 ```
+
+> **Linux:** If tkinter is missing, install it via your package manager:
+> ```bash
+> sudo apt install python3-tk       # Debian / Ubuntu
+> sudo dnf install python3-tkinter  # Fedora
+> sudo pacman -S python-tk          # Arch
+> ```
 
 ---
 
 ## Installation
 
-### Option A — GUI Installer (recommended for most users)
+### Option A — GUI Installer (recommended)
 
-Download `MullvadPingInstaller.exe` from the [Releases](../../releases) page and run it. No Python required — the installer bundles its own runtime and handles everything.
+Download `MullvadPingInstaller.exe` from the [Releases](../../releases) page and run it. No prior Python installation required — the installer handles everything:
 
-The installer will:
-- Detect whether Python 3 is already installed on your system
-- Offer to download the official Python installer if it isn't
-- Install all required packages (`matplotlib`, `seaborn`, `pandas`, `numpy`, `folium`) via pip
-- Let you choose an install directory
-- Create a launcher script (`.bat` on Windows, `.sh` on macOS/Linux)
-- Optionally create a desktop shortcut and Start Menu entry
-- Launch the app automatically when done
+- Detects whether Python 3 is installed; offers to download it if not
+- Checks and installs all required packages via pip
+- Lets you choose an install directory
+- Creates a launcher script (`.bat` on Windows, `.sh` on macOS/Linux)
+- Optionally creates a desktop shortcut and Start Menu entry
+- Launches the app automatically when done
 
 ### Option B — Manual install
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/mullvad-lax-ping.git
-cd mullvad-lax-ping
+git clone https://github.com/YOUR_USERNAME/mullvad-wg-monitor.git
+cd mullvad-wg-monitor
 
 # 2. Install dependencies
-pip install matplotlib seaborn pandas numpy folium
+pip install matplotlib seaborn pandas numpy folium pystray Pillow
 
 # 3. Run
 python mullvad_ping.py
 ```
 
-> **Note for Linux users:** If tkinter is missing, install it via your package manager:
-> ```bash
-> sudo apt install python3-tk      # Debian / Ubuntu
-> sudo dnf install python3-tkinter # Fedora
-> ```
-
 ### Building the installer exe yourself
-
-Requires Python and PyInstaller:
 
 ```bash
 pip install pyinstaller
 pyinstaller --onefile --windowed --name "MullvadPingInstaller" installer.py
 ```
 
-The resulting exe will be in the `dist/` folder. Place `mullvad_ping.py` in the same folder as the exe before distributing, or users can select "Download from GitHub" inside the installer.
+The exe will be in `dist/`. Place `mullvad_ping.py` in the same folder before distributing, or users can select "Download from GitHub" inside the installer.
 
 ---
 
 ## Usage
 
-1. Launch the script — a dark-themed window opens.
-2. Click **Run Ping Test** in the top-right corner.
-3. The tool pings each server one at a time (4 packets per server). A progress bar and live status line show which server is currently being tested.
-4. Once complete:
-   - The **Results** tab shows the full table, sortable by any column.
-   - The **Statistics** tab renders five charts automatically.
-   - The **Map** tab updates the static LA-area scatter map with live latency data.
-   - The **Open Interactive Map** button opens a Folium map in your default browser.
-5. Click **Run Again** to re-run the test at any time.
+1. Launch the app — a dark-themed window opens.
+2. Select a **Region** from the header dropdown (default: Los Angeles).
+3. Optionally adjust the **Pings** slider (default: 4 packets per server).
+4. Set an **Alert** threshold if you want rows highlighted when latency exceeds it.
+5. Click **▶ Run** — servers are pinged one at a time; the Live column animates per packet.
+6. Once complete, explore the tabs:
 
-### Interpreting results
+| Tab | Contents |
+|-----|----------|
+| **Results** | Full table with avg/min/max/jitter/loss, sortable by any column |
+| **Statistics** | Five auto-generated Seaborn/Matplotlib charts |
+| **Map** | Static datacenter scatter map + Open Interactive Map button |
+| **History** | Time-series latency and best-15 bar chart from SQLite history |
+| **Traceroute** | Run traceroute to any server; live hop table + bar chart |
+| **Speed Test** | HTTP throughput test with donut gauges |
+| **Compare** | Side-by-side delta table for two saved runs |
 
-| Color | Meaning |
-|-------|---------|
+### Toolbar actions
+
+| Button | Action |
+|--------|--------|
+| **⎘ Copy Best** | Copies the best server hostname to clipboard |
+| **↓ Export CSV / JSON** | Saves current results to a file |
+| **⊞ Save as Run A / B** | Snapshots current results for comparison |
+| **⇄ Compare A vs B** | Opens the Compare tab with a delta table |
+| **⚡ Auto-Connect** | Runs `mullvad relay set hostname <best>` via CLI |
+
+### Auto-ping schedule
+
+Check **Auto-ping every** in the header and drag the slider to set the interval (0.5–60 minutes). The test repeats automatically and saves each run to history.
+
+### System tray
+
+Click **⊟ Tray** to minimize to the system tray. Requires `pystray` and `Pillow` (`pip install pystray Pillow`). Right-click the tray icon for Show, Run Ping Now, and Quit.
+
+---
+
+## Interpreting results
+
+| Colour | Meaning |
+|--------|---------|
 | 🟢 Green | Excellent — under 30 ms |
 | 🔵 Cyan | Good — 30–70 ms |
 | 🟡 Yellow | Slow — 70–120 ms |
 | 🔴 Red | High latency — over 120 ms |
 | ⚫ Grey | Unreachable / 100% packet loss |
-
-### Datacenter groups
-
-Mullvad's LAX WireGuard servers are grouped by their numbering prefix, each corresponding to a different LA-area carrier-neutral facility:
-
-| Group | Servers | Approximate location |
-|-------|---------|----------------------|
-| LAX-A | 001–008 | CoreSite LA1, Downtown LA |
-| LAX-B | 201–203 | Equinix LA3, El Segundo |
-| LAX-C | 402–409 | Zayo Burbank, Media District |
-| LAX-D | 601–608 | Equinix LA4, Irvine / Orange County |
-| LAX-E | 701–704 | CoreSite LA2, Long Beach |
-
-> Datacenter assignments are inferred from Mullvad's public infrastructure and may not reflect their exact internal routing.
+| 🔴 Highlighted row | Exceeds configured threshold |
 
 ---
 
-## Extending the tool
+## Regions and datacenters
 
-**Adding more servers:** Edit the `SERVERS` list at the top of `mullvad_ping.py`. The rest of the tool adapts automatically.
+| Region | Groups | Approx. facilities |
+|--------|--------|--------------------|
+| Los Angeles | LAX-A–E | CoreSite LA1, Equinix LA3/LA4, Zayo Burbank, CoreSite LA2 |
+| New York | NYC-A–D | Equinix NY9, Zayo NYC, Equinix NY5, Corelink Brooklyn |
+| Seattle | SEA-A–C | Equinix SE2, Sabey Bellevue, Westin Redmond |
+| Chicago | CHI-A–C | Equinix CH4, CyrusOne Elk Grove, Flexential Westmont |
+| Dallas | DAL-A–C | Equinix DA2, CyrusOne Carrollton, Stream Global Irving |
+| Atlanta | ATL-A–C | Equinix AT2, QTS Suwanee, Corelink College Park |
+| Miami | MIA-A–C | Equinix MI1, CyrusOne North Miami, Datasite Doral |
 
-**Other Mullvad regions:** Replace or extend `SERVERS` with servers from other regions (e.g. `us-nyc-wg-*`) and update `DATACENTER_INFO` with the appropriate coordinates and datacenter names.
-
-**Changing ping count:** Modify the `count=4` default in `ping_server()`.
+> Datacenter assignments are inferred from Mullvad's public infrastructure and may not reflect their exact internal routing.
 
 ---
 
@@ -146,6 +180,8 @@ Mullvad's LAX WireGuard servers are grouped by their numbering prefix, each corr
 
 - This tool uses the system `ping` command and does not require root/administrator privileges.
 - No data leaves your machine — all pings go directly from your system to Mullvad's servers.
+- Location detection uses [ip-api.com](https://ip-api.com) (IP-based) or [Nominatim/OpenStreetMap](https://nominatim.openstreetmap.org) (address search). No API key is required for either.
+- History is stored locally at `~/.mullvad_ping/history.db` (SQLite).
 - This project is not affiliated with or endorsed by Mullvad VPN AB.
 
 ---

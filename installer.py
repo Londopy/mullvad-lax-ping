@@ -1,5 +1,5 @@
 """
-Mullvad LAX Ping Tool — Installer
+Mullvad WireGuard Latency Monitor — Installer
 Converts to .exe via PyInstaller. Bundles its own Python runtime so it runs
 even on machines with no Python installed.
 
@@ -44,12 +44,14 @@ REQUIRED_PACKAGES = [
     ("pandas",     "pandas"),
     ("numpy",      "numpy"),
     ("folium",     "folium"),
+    ("pystray",    "pystray"),
+    ("PIL",        "Pillow"),
 ]
 
 PYTHON_DOWNLOAD_WIN   = "https://www.python.org/ftp/python/3.12.3/python-3.12.3-amd64.exe"
 PYTHON_DOWNLOAD_MAC   = "https://www.python.org/ftp/python/3.12.3/python-3.12.3-macos11.pkg"
 MAIN_SCRIPT_NAME      = "mullvad_ping.py"
-MAIN_SCRIPT_GITHUB    = "https://raw.githubusercontent.com/Londopy/mullvad-lax-ping/main/mullvad_ping.py"
+MAIN_SCRIPT_GITHUB    = "https://raw.githubusercontent.com/YOUR_USERNAME/mullvad-wg-monitor/main/mullvad_ping.py"
 
 # ── HELPERS ────────────────────────────────────────────────────────────────────
 
@@ -93,7 +95,7 @@ def install_package(python_cmd, pip_name, log_cb):
 class InstallerApp(tk.Tk):
     def __init__(self):
         super().__init__()
-        self.title("Mullvad LAX Ping Tool  —  Installer")
+        self.title("Mullvad WireGuard Latency Monitor  —  Installer v2.0")
         self.configure(bg=BG)
         self.geometry("720x620")
         self.resizable(False, False)
