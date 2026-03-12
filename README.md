@@ -83,7 +83,16 @@ Download `MullvadPingInstaller.exe` from the [Releases](../../releases) page and
 - Optionally creates a desktop shortcut and Start Menu entry
 - Launches the app automatically when done
 
-### Option B — Manual install
+### Option B - Building the installer exe yourself
+
+```bash
+pip install pyinstaller
+pyinstaller --onefile --windowed --name "MullvadPingInstaller" installer.py
+```
+
+The exe will be in `dist/`. Place `mullvad_ping.py` in the same folder before distributing, or users can select "Download from GitHub" inside the installer.
+
+### Option C — Manual install 
 
 ```bash
 # 1. Clone the repo
@@ -96,15 +105,6 @@ pip install matplotlib seaborn pandas numpy folium pystray Pillow
 # 3. Run
 python mullvad_ping.py
 ```
-
-### Building the installer exe yourself
-
-```bash
-pip install pyinstaller
-pyinstaller --onefile --windowed --name "MullvadPingInstaller" installer.py
-```
-
-The exe will be in `dist/`. Place `mullvad_ping.py` in the same folder before distributing, or users can select "Download from GitHub" inside the installer.
 
 ---
 
